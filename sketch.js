@@ -4,7 +4,7 @@ let room;  // pGraphics WEBGL
 let fileInput;
 
 function preload() {
-  img = loadImage("photo.png");
+  img = loadImage("default_img.png");
 }
 
 function setup() {
