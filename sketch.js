@@ -199,15 +199,6 @@ function draw() {
 
   background(0);
   image(room, 0, 0, width, height);
-}      atlas.image(src, tw + ox, th * 2 + oy, dw, dh, sx, sy, sw, sh);
-      atlas.image(src, 0 + ox, th + oy, dw, dh, sx, sy, sw, sh);
-      atlas.image(src, tw * 2 + ox, th + oy, dw, dh, sx, sy, sw, sh);
-    }
-  }
-
-
-
-
 }
 
 function draw() {
