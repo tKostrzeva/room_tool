@@ -19,27 +19,23 @@ function setup() {
   camBtn.mousePressed(() => {
     if (camOn) return;
 
-    cam = createCapture(
-      {
-        video: { facingMode: { ideal: "environment" } },
-        audio: false
-      },
-      () => {
-        camOn = true;
+    cam = createCapture({
+      video: { facingMode: { ideal: "environment" } },
+      audio: false
+    });
 
-        // iOS/Safari: force inline playback + autoplay
-        const v = cam.elt;
-        v.setAttribute("playsinline", "");
-        v.setAttribute("webkit-playsinline", "");
-        v.setAttribute("autoplay", "");
-        v.muted = true;
+    camOn = true;
 
-        const p = v.play();
-        if (p && p.catch) p.catch(() => { });
-      }
-    );
+    // iOS/Safari: force inline playback + autoplay
+    const v = cam.elt;
+    v.setAttribute("playsinline", "");
+    v.setAttribute("webkit-playsinline", "");
+    v.setAttribute("autoplay", "");
+    v.muted = true;
 
-    cam.size(640, 480);
+    const p = v.play();
+    if (p && p.catch) p.catch(() => { });
+
     cam.hide();
   });
   camBtn.id("uploadInput");
@@ -85,50 +81,50 @@ function initBuffers() {
 
 function draw() {
   // Aspect ratio: use camera if ready, otherwise fallback to image
- // Camera readiness (iOS Safari can keep videoWidth=0 even when camera indicator is on)
-const camReady =
-  camOn &&
-  cam &&
-  cam.elt &&
-  (cam.elt.readyState >= 2) &&
-  ((cam.elt.videoWidth > 0 && cam.elt.videoHeight > 0) || (cam.width > 0 && cam.height > 0));
+  // Camera readiness (iOS Safari can keep videoWidth=0 even when camera indicator is on)
+  const camReady =
+    camOn &&
+    cam &&
+    cam.elt &&
+    (cam.elt.readyState >= 2) &&
+    ((cam.elt.videoWidth > 0 && cam.elt.videoHeight > 0) || (cam.width > 0 && cam.height > 0));
 
-const camW = camReady ? (cam.elt.videoWidth || cam.width) : 0;
-const camH = camReady ? (cam.elt.videoHeight || cam.height) : 0;
+  const camW = camReady ? (cam.elt.videoWidth || cam.width) : 0;
+  const camH = camReady ? (cam.elt.videoHeight || cam.height) : 0;
 
-const imgAspect = camReady
-  ? (camW / camH)
-  : (img.width / img.height);
+  const imgAspect = camReady
+    ? (camW / camH)
+    : (img.width / img.height);
 
-// --- LIVE CAMERA UPDATE ---
-if (camReady) {
-  const tw = camW;
-  const th = camH;
+  // --- LIVE CAMERA UPDATE ---
+  if (camReady) {
+    const tw = camW;
+    const th = camH;
 
-  if (!atlas || atlas.width !== tw * 3 || atlas.height !== th * 3) {
-    atlas = createGraphics(tw * 3, th * 3);
-    atlas.pixelDensity(1);
+    if (!atlas || atlas.width !== tw * 3 || atlas.height !== th * 3) {
+      atlas = createGraphics(tw * 3, th * 3);
+      atlas.pixelDensity(1);
+    }
+
+    const sx = 0, sy = 0, sw = tw, sh = th;
+
+    const srcLong = Math.max(sw, sh);
+    const dstLong = Math.max(tw, th);
+    const s = dstLong / srcLong;
+
+    const dw = sw * s;
+    const dh = sh * s;
+
+    const ox = (tw - dw) * 0.5;
+    const oy = (th - dh) * 0.5;
+
+    atlas.clear();
+    atlas.image(cam, tw + ox, th + oy, dw, dh, sx, sy, sw, sh);
+    atlas.image(cam, tw + ox, 0 + oy, dw, dh, sx, sy, sw, sh);
+    atlas.image(cam, tw + ox, th * 2 + oy, dw, dh, sx, sy, sw, sh);
+    atlas.image(cam, 0 + ox, th + oy, dw, dh, sx, sy, sw, sh);
+    atlas.image(cam, tw * 2 + ox, th + oy, dw, dh, sx, sy, sw, sh);
   }
-
-  const sx = 0, sy = 0, sw = tw, sh = th;
-
-  const srcLong = Math.max(sw, sh);
-  const dstLong = Math.max(tw, th);
-  const s = dstLong / srcLong;
-
-  const dw = sw * s;
-  const dh = sh * s;
-
-  const ox = (tw - dw) * 0.5;
-  const oy = (th - dh) * 0.5;
-
-  atlas.clear();
-  atlas.image(cam, tw + ox, th + oy, dw, dh, sx, sy, sw, sh);
-  atlas.image(cam, tw + ox, 0 + oy, dw, dh, sx, sy, sw, sh);
-  atlas.image(cam, tw + ox, th * 2 + oy, dw, dh, sx, sy, sw, sh);
-  atlas.image(cam, 0 + ox, th + oy, dw, dh, sx, sy, sw, sh);
-  atlas.image(cam, tw * 2 + ox, th + oy, dw, dh, sx, sy, sw, sh);
-}
 
   room.clear();
   room.background(0);
