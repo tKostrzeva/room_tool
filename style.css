@@ -18,11 +18,14 @@ body {
 }
 
 /* fixed upload button in top-left */
-#uploadInput{
+#saveButton{
   position: fixed;
   top: 90%;
   left: 50%;
+  transform: translate(-100px);
   z-index: 9999;
   cursor: pointer;
+width: 200px;
+height: 35px;
 }
 
