@@ -1,4 +1,8 @@
 let img;
+let cam;
+let camOn = false;
+let camBtn;
+
 let atlas; // pGraphics - texture atlas
 let room;  // pGraphics WEBGL
 let fileInput;
@@ -8,30 +12,26 @@ function preload() {
 }
 
 function setup() {
-const cnv = createCanvas(windowWidth, windowHeight);
-initBuffers();
+  const cnv = createCanvas(windowWidth, windowHeight);
+  initBuffers();
 
-  fileInput = createFileInput((file) => {
-    if (file && file.type === "image") {
-      loadImage(file.data, (loaded) => {
-        img = loaded;
+  camBtn = createButton("Use live camera");
+  camBtn.mousePressed(() => {
+    if (camOn) return;
 
-        // downscale big images (keeps aspect ratio)
-        const MAX_LONG_EDGE = 960; // uprav podľa potreby (1200–2200 je praktické)
-        const longEdge = Math.max(img.width, img.height);
+    cam = createCapture({
+      video: {
+        facingMode: "environment"
+      },
+      audio: false
+    }, () => {
+      camOn = true;
+    });
 
-        if (longEdge > MAX_LONG_EDGE) {
-          const scale = MAX_LONG_EDGE / longEdge;
-          const nw = Math.round(img.width * scale);
-          const nh = Math.round(img.height * scale);
-          img.resize(nw, nh);
-        }
-
-        initBuffers();
-      });
-    }
+    cam.size(1280, 720);
+    cam.hide();
   });
-  fileInput.id("uploadInput");
+  camBtn.id("uploadInput");
 }
 
 function windowResized() {
@@ -52,32 +52,36 @@ function initBuffers() {
   room.noStroke();
   room.textureMode(NORMAL);
 
-  // atlas naplň iba raz (ak sa zdroj nemení)
-  atlas.clear();
+  const src = camOn ? cam : img;
+  if (!src) return;
 
-  // pomocné: source rect z img (tu si doladíš cropy podľa toho, ako si to rozsekal)
-  // Default: beriem všetko (celú fotku) a len ju vkladám ako tile.
-  // Ak chceš reálne cropy, zmeň sx,sy,sw,sh pre každú stenu.
-  const sx = 0, sy = 0, sw = img.width, sh = img.height;
+  // keď je kamera zapnutá, atlas prepisuj každý frame
+  if (camOn) {
+    const tw = src.width;
+    const th = src.height;
 
-  // cross layout (ako textures.png)
-  // cross layout (ako textures.png) - image sa škáluje uniformne podľa dlhšej hrany (bez zmeny pomeru strán)
-  const srcLong = Math.max(sw, sh);
-  const dstLong = Math.max(tw, th);
-  const s = dstLong / srcLong;
+    // ak rozmery zdroja nie sú pripravené, neupdateuj
+    if (tw > 0 && th > 0) {
+      atlas.clear();
 
-  const dw = sw * s;
-  const dh = sh * s;
+      const sx = 0, sy = 0, sw = tw, sh = th;
 
-  // center inside each tile (môže vzniknúť letterbox, ale bez deformácie)
-  const ox = (tw - dw) * 0.5;
-  const oy = (th - dh) * 0.5;
+      const srcLong = Math.max(sw, sh);
+      const dstLong = Math.max(tw, th);
+      const s = dstLong / srcLong;
 
-  atlas.image(img, tw + ox, th + oy, dw, dh, sx, sy, sw, sh); // BACK (center)
-  atlas.image(img, tw + ox, 0 + oy, dw, dh, sx, sy, sw, sh); // CEIL (top)
-  atlas.image(img, tw + ox, th * 2 + oy, dw, dh, sx, sy, sw, sh); // FLOOR (bottom)
-  atlas.image(img, 0 + ox, th + oy, dw, dh, sx, sy, sw, sh); // LEFT
-  atlas.image(img, tw * 2 + ox, th + oy, dw, dh, sx, sy, sw, sh); // RIGHT
+      const dw = sw * s;
+      const dh = sh * s;
+      const ox = (tw - dw) * 0.5;
+      const oy = (th - dh) * 0.5;
+
+      atlas.image(src, tw + ox, th + oy, dw, dh, sx, sy, sw, sh);
+      atlas.image(src, tw + ox, 0 + oy, dw, dh, sx, sy, sw, sh);
+      atlas.image(src, tw + ox, th * 2 + oy, dw, dh, sx, sy, sw, sh);
+      atlas.image(src, 0 + ox, th + oy, dw, dh, sx, sy, sw, sh);
+      atlas.image(src, tw * 2 + ox, th + oy, dw, dh, sx, sy, sw, sh);
+    }
+  }
 
 
 
