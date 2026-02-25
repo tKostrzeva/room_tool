@@ -38,7 +38,8 @@ body {
   transform: translateX(-50%);
 
   width: 20vw;                    /* % šírky viewportu */
-  height: 35px;                   /* iOS safe tap size */
+  width: 300px; 
+  height: 50px;                   /* iOS safe tap size */
 
   z-index: 9999;
 }
