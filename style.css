@@ -19,12 +19,20 @@ body {
 
 /* fixed upload button in top-left */
 #saveButton {
+  -webkit-appearance: none;
+  /* Safari/iOS */
+  appearance: none;
+  /* modern browsers */
+  background: none;
+  border-radius: 0;
+  border: none;
+  background: #ffffff;
   position: fixed;
-  top: 85%;
+  top: 90%;
   left: 50%;
-  transform: translate(-150px);
+  transform: translate(-10vw);
   z-index: 9999;
   cursor: pointer;
-  width: 300px;
-  height: 100px;
+  width: 20%;
+  height: 35px;
 }
