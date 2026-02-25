@@ -17,22 +17,28 @@ body {
   display: inline-block;
 }
 
-/* fixed upload button in top-left */
+
 #saveButton {
   -webkit-appearance: none;
-  /* Safari/iOS */
   appearance: none;
-  /* modern browsers */
-  background: none;
-  border-radius: 0;
-  border: none;
-  background: #ffffff;
+
+  display: block;                 /* kritické pre iOS */
+  background-color: #ffffff;      /* použi background-color */
+  border: 0;
+  border-radius: none;             /* teraz bude fungovať */
+  padding: 0;
+  margin: 0;
+
+  font-size: 18px;
+  color: #000000;
+
   position: fixed;
-  top: 90%;
+  bottom: 8vh;                    /* lepšie než top: 90% */
   left: 50%;
-  transform: translate(-10vw);
+  transform: translateX(-50%);
+
+  width: 20vw;                    /* % šírky viewportu */
+  height: 35px;                   /* iOS safe tap size */
+
   z-index: 9999;
-  cursor: pointer;
-  width: 20%;
-  height: 35px;
 }
