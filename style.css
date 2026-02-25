@@ -20,8 +20,8 @@ body {
 /* fixed upload button in top-left */
 #uploadInput{
   position: fixed;
-  top: 12px;
-  left: 12px;
+  top: 90%;
+  left: 50%;
   z-index: 9999;
   cursor: pointer;
 }
